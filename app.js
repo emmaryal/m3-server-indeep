@@ -8,7 +8,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const cors = require('cors');
 require('dotenv').config();
-
+const recordsRouter = require('./routes/records.router');
 const authRouter = require('./routes/auth.router');
 
 
@@ -60,6 +60,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ROUTER MIDDLEWARE
 app.use('/auth', authRouter);
+app.use('/api/', recordsRouter);
 
 
 

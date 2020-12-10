@@ -4,6 +4,7 @@ const createError = require("http-errors");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const User = require("../models/user.model");
+const uploader = require("./../config/cloudinary-setup");
 
 // HELPER FUNCTIONS
 const {
@@ -12,11 +13,14 @@ const {
   validationLogin
 } = require("../helpers/middlewares");
 
+
+
+
 // POST '/auth/signup'
 router.post('/signup', isNotLoggedIn, validationLogin, (req, res, next) => {
-  const { username, password } = req.body;
+  const { email,name, password, profilePic } = req.body;
 
-  User.findOne({ username })
+  User.findOne({ email })
     .then( (foundUser) => {
 
       if (foundUser) {
@@ -28,7 +32,7 @@ router.post('/signup', isNotLoggedIn, validationLogin, (req, res, next) => {
         const salt = bcrypt.genSaltSync(saltRounds);
         const encryptedPassword = bcrypt.hashSync(password, salt);
 
-        User.create( { username, password: encryptedPassword })
+        User.create( { email, name, password: encryptedPassword, profilePic })
           .then( (createdUser) => {
             // set the `req.session.currentUser` using newly created user object, to trigger creation of the session and cookie
             createdUser.password = "*";
@@ -50,15 +54,26 @@ router.post('/signup', isNotLoggedIn, validationLogin, (req, res, next) => {
 
 
 })
-
-
-
-
+// include CLOUDINARY:
+//upload a single image per once.
+// ADD an horitzontal middleware
+router.post("/upload", uploader.single("profilePic"),  (req, res, next) => {
+  console.log("file is: ", req.file);
+  if (!req.file) {
+    next(new Error("No file uploaded!"));
+    return;
+  }
+  // get secure_url from the file object and save it in the
+  // variable 'secure_url', but this can be any name, just make sure you remember to use the same in frontend
+  res.json({ secure_url: req.file.secure_url });
+});
 // POST '/auth/login'
 router.post('/login', isNotLoggedIn, validationLogin, (req, res, next) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  User.findOne({ username })
+  console.log('here', req.body)
+
+  User.findOne({ email })
     .then( (user) => {
       if (! user) {
         // If user with that username can't be found, respond with an error
@@ -87,7 +102,6 @@ router.post('/login', isNotLoggedIn, validationLogin, (req, res, next) => {
     });
 })
 
-
 // GET '/auth/logout'
 router.get('/logout',  isLoggedIn, (req, res, next) => {
   req.session.destroy( function(err){
@@ -100,8 +114,6 @@ router.get('/logout',  isLoggedIn, (req, res, next) => {
       .send();
   } )
 })
-
-
 
 // GET '/auth/me'
 router.get('/me', isLoggedIn, (req, res, next) => {
