@@ -30,7 +30,11 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: [process.env.PUBLIC_DOMAIN],
+    origin: [
+      process.env.PUBLIC_DOMAIN, 
+      "http://git.heroku.com/indeep.git",
+      "https://git.heroku.com/indeep.git"
+    ],
   }),
 );
 
@@ -61,6 +65,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ROUTER MIDDLEWARE
 app.use('/auth', authRouter);
 app.use('/api/', recordsRouter);
+
+
+
+// ROUTE FOR SERVING REACT APP (index.html)
+app.use((req, res, next) => {
+  // If no previous routes match the request, send back the React app.
+  res.sendFile(__dirname + "/public/index.html");
+});
+
 
 
 
