@@ -6,8 +6,6 @@ const router = express.Router();
 const User = require("../models/user.model")
 const Record = require("../models/record.model");
 
-// const recordData = [listingId, artist, title, label, catno,format, releaseId, status, price, listed, comments, mediaCondition, sleeveCondition, acceptOffer, externalId, weight, formatQuantity, flatShipping, location, favouritedBy, image]
-
 //get all records
 router.get("/records", (req, res, next) => {
     Record.find()
@@ -16,7 +14,7 @@ router.get("/records", (req, res, next) => {
         res.status(200).json(allTheRecords);
       })
       .catch((err) => {
-        res.status(500).json(err);
+        next(err)
       });
   });
 
@@ -24,9 +22,9 @@ router.get("/records", (req, res, next) => {
 router.post("/records", (req, res, next) =>{
 
   const {title, artist, format, image, label, mediaCondition, sleeveCondition, weight, comments,catno,price} = req.body;
+    
   
-  
-Record.create({title, artist, format, image, label, mediaCondition, sleeveCondition, weight, comments,catno,price})
+Record.create({title, artist, format, image, label, mediaCondition, sleeveCondition, favoritedBy: [], weight, comments,catno,price})
     .then((createdRecord) => {
       res.status(201).json(createdRecord);
     })
@@ -100,7 +98,7 @@ router.delete('/records/:id', (req, res)=>{
   });  
 
 //get all users
-router.get("/users", (req, res, next) => {
+/* router.get("/users", (req, res, next) => {
   User.find()
   
     .then((allTheUsers) => {
@@ -109,18 +107,18 @@ router.get("/users", (req, res, next) => {
     .catch((err) => {
       res.status(500).json(err);
     });
-});
+}); */
 //update favourites - add users to array
 router.put("/users/:id/records/:recordId", (req, res, next) => {
-  const { id } = req.params;
-  const {} = req.body;
+  const { id, recordId } = req.params;
+  
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(recordId)) {
     res.status(400).json({ message: "Specified id is not valid" });
     return;
   }
 
-  User.findByIdAndUpdate(id,
+  Record.findByIdAndUpdate(recordId,
     { $push: { favoritedBy: id } },
     { new: true })
     .then((updatedRecord) => {
