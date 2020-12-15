@@ -32,8 +32,8 @@ app.use(
     credentials: true,
     origin: [
       process.env.PUBLIC_DOMAIN, 
-      "https://indeep.herokuapp.com/",
-      "http://indeep.herokuapp.com/"
+      "https://indeep.herokuapp.com",
+      "http://indeep.herokuapp.com"
     ],
   }),
 );
