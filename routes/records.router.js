@@ -177,7 +177,7 @@ router.delete("/records/:id", (req, res) => {
       res.status(500).json(err);
     });
 }); */
-//update favourites - add users to array
+//update favourites - add users and records to array
 router.put("/users/:id/records/:recordId", (req, res, next) => {
   const { id, recordId } = req.params;
 
@@ -195,11 +195,61 @@ router.put("/users/:id/records/:recordId", (req, res, next) => {
     { new: true }
   )
     .then((updatedRecord) => {
+      User.findByIdAndUpdate(
+        id, {$push: {favouriteRecords: recordId}},
+        {new:true}
+      )
+      .then((updatedUser) => {
+        res.status(200).json(updatedUser);
+      })
+      .catch((err) => {
+        res.status(500).json(err);
+      });
       res.status(200).json(updatedRecord);
     })
     .catch((err) => {
       res.status(500).json(err);
     });
+
+    
+});
+
+
+//update favourites - remove records & users from array
+router.put("/records/:recordId/users/:id", (req, res, next) => {
+  const { recordId , id, } = req.params;
+
+  if (
+    !mongoose.Types.ObjectId.isValid(id) ||
+    !mongoose.Types.ObjectId.isValid(recordId)
+  ) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  Record.findByIdAndUpdate(
+    recordId,
+    { $pull: { favoritedBy: id } },
+    { new: true }
+  )
+    .then((updatedRecord) => {
+      User.findByIdAndUpdate(
+        id, {$pull: {favouriteRecords: recordId}},
+        {new:true}
+      )
+      .then((updatedUser) => {
+        res.status(200).json(updatedUser);
+      })
+      .catch((err) => {
+        res.status(500).json(err);
+      });
+      res.status(200).json(updatedRecord);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+
+   
 });
 
 //get current user by session id
