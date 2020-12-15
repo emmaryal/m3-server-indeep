@@ -32,8 +32,8 @@ app.use(
     credentials: true,
     origin: [
       process.env.PUBLIC_DOMAIN, 
-      "http://git.heroku.com/indeep.git",
-      "https://git.heroku.com/indeep.git"
+      "http://git.herokuapp.com/indeep.git",
+      "https://git.herokuapp.com/indeep.git"
     ],
   }),
 );
