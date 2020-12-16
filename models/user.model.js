@@ -6,7 +6,7 @@ const userSchema = new Schema({
   name: {type: String, required: true},
   password: {type: String, required: true}, 
   profilePic: {type: String},
-  favouriteRecords: [{type: Schema.Types.ObjectId, ref: "Records" }],
+  favouriteRecords: [{type: Schema.Types.ObjectId, ref: "Record" }],
 }, {
   timestamps: {
     createdAt: 'created_at',

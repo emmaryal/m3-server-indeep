@@ -265,11 +265,13 @@ router.get("/users/:id", (req, res, next) => {
     return;
   }
 
-  User.findById(id)
+  User.findOne({_id:id})
+  .populate("favouriteRecords")
     .then((foundUser) => {
       res.status(200).json(foundUser); // OK
     })
     .catch((err) => {
+      console.log(err)
       res.status(500).json(err); // Internal Server Error
     });
 });
