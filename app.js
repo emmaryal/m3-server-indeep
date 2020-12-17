@@ -63,6 +63,12 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/auth", authRouter);
 app.use("/api", recordsRouter);
 
+
+
+
+
+
+
 // ROUTE FOR SERVING REACT APP (index.html)
 app.use((req, res, next) => {
   // If no previous routes match the request, send back the React app.
@@ -89,30 +95,5 @@ app.use((err, req, res, next) => {
 });
 
 //stripe
-
-app.post("/create-checkout-session", async (req, res) => {
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price_data: {
-          currency: "eur",
-          product_data: {
-            name: "get data from ??",
-          },
-          unit_amount: 2000,
-        },
-        quantity: 1,
-      }
-    ],
-    mode: "payment",
-    success_url: "https://indeep.herokuapp.com/success",
-    cancel_url: "https://indeep.herokuapp.com/cancel",
-  });
-
-  res.json({ id: session.id });
-});
-
-app.listen(4242, () => console.log(`Listening on port ${4242}!`));
 
 module.exports = app;
