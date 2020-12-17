@@ -1,27 +1,25 @@
-const express = require('express');
-const path = require('path');
-const logger = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
-const cors = require('cors');
-require('dotenv').config();
-const recordsRouter = require('./routes/records.router');
-const authRouter = require('./routes/auth.router');
-
+const express = require("express");
+const path = require("path");
+const logger = require("morgan");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const session = require("express-session");
+const MongoStore = require("connect-mongo")(session);
+const cors = require("cors");
+require("dotenv").config();
+const recordsRouter = require("./routes/records.router");
+const authRouter = require("./routes/auth.router");
 
 // MONGOOSE CONNECTION
 mongoose
   .connect(process.env.MONGODB_URI, {
     keepAlive: true,
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   })
   .then(() => console.log(`Connected to database`))
   .catch((err) => console.error(err));
-
 
 // EXPRESS SERVER INSTANCE
 const app = express();
@@ -31,13 +29,12 @@ app.use(
   cors({
     credentials: true,
     origin: [
-      process.env.PUBLIC_DOMAIN, 
+      process.env.PUBLIC_DOMAIN,
       "https://indeep.herokuapp.com",
-      "http://indeep.herokuapp.com"
+      "http://indeep.herokuapp.com",
     ],
-  }),
+  })
 );
-
 
 // SESSION MIDDLEWARE
 app.use(
@@ -52,21 +49,19 @@ app.use(
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     },
-  }),
+  })
 );
 
 // MIDDLEWARE
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // ROUTER MIDDLEWARE
-app.use('/auth', authRouter);
-app.use('/api', recordsRouter);
-
-
+app.use("/auth", authRouter);
+app.use("/api", recordsRouter);
 
 // ROUTE FOR SERVING REACT APP (index.html)
 app.use((req, res, next) => {
@@ -74,32 +69,50 @@ app.use((req, res, next) => {
   res.sendFile(__dirname + "/public/index.html");
 });
 
-
-
-
 // ERROR HANDLING
 //  Catch 404 and respond with error message
 // Shows a 404 error with a message when no route is found for the request
 app.use((req, res, next) => {
-  res
-    .status(404)
-    .json({ code: 'not found' });    // .send( JSON.stringify(  { code: 'not found' }  ) )
-
+  res.status(404).json({ code: "not found" }); // .send( JSON.stringify(  { code: 'not found' }  ) )
 });
-
-
 
 // Catch `next(err)` calls
 app.use((err, req, res, next) => {
   // always log the error
-  console.error('ERROR', req.method, req.path, err);
+  console.error("ERROR", req.method, req.path, err);
 
   // only render if the error ocurred before sending the response
   if (!res.headersSent) {
-    const statusError = err.status || '500';
+    const statusError = err.status || "500";
     res.status(statusError).json(err);
   }
 });
 
+//stripe
+
+app.post("/create-checkout-session", async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "eur",
+          product_data: {
+            name: "get data from ??",
+          },
+          unit_amount: 2000,
+        },
+        quantity: 1,
+      }
+    ],
+    mode: "payment",
+    success_url: "https://indeep.herokuapp.com/success",
+    cancel_url: "https://indeep.herokuapp.com/cancel",
+  });
+
+  res.json({ id: session.id });
+});
+
+app.listen(4242, () => console.log(`Listening on port ${4242}!`));
 
 module.exports = app;

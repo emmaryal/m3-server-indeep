@@ -178,7 +178,7 @@ router.delete("/records/:id", (req, res) => {
     });
 }); */
 //update favourites - add users and records to array
-router.put("/users/:id/records/:recordId", (req, res, next) => {
+ router.put("/users/:id/records/:recordId", (req, res, next) => {
   const { id, recordId } = req.params;
 
   if (
@@ -212,7 +212,7 @@ router.put("/users/:id/records/:recordId", (req, res, next) => {
     });
 
     
-});
+}); 
 
 
 //update favourites - remove records & users from array
