@@ -166,17 +166,7 @@ router.delete("/records/:id", (req, res) => {
     });
 });
 
-//get all users
-/* router.get("/users", (req, res, next) => {
-  User.find()
-  
-    .then((allTheUsers) => {
-      res.status(200).json(allTheUsers);
-    })
-    .catch((err) => {
-      res.status(500).json(err);
-    });
-}); */
+
 //update favourites - add users and records to array
  router.put("/users/:id/records/:recordId", (req, res, next) => {
   const { id, recordId } = req.params;
