@@ -1,4 +1,4 @@
-const express = require("express");
+ const express = require("express");
 const router = express.Router();
 const createError = require("http-errors");
 const bcrypt = require("bcrypt");
@@ -15,7 +15,7 @@ const {
 
 
 
-
+ 
 // POST '/auth/signup'
 router.post('/signup', isNotLoggedIn, validationLogin, (req, res, next) => {
   const { email,name, password, profilePic } = req.body;
